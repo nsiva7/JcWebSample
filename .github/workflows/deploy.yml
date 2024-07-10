@@ -19,8 +19,8 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
 
-      - name: Set up Kotlin
-        uses: fwilhe2/setup-kotlin@v1
+      - name: Install Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Build
         run: ./gradlew build
