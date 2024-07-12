@@ -69,8 +69,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/distributions/<your-asset-file>
-          asset_name: <your-asset-file>
+          asset_path: ./build/distributions/jcweb
+          asset_name: jcweb
           asset_content_type: application/zip
 
   deploy:
