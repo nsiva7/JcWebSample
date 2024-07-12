@@ -1,9 +1,11 @@
-name: Build and Deploy
+name: Build, Release, and Deploy
 
 on:
   push:
     branches:
       - main  # Trigger the workflow on push to the main branch
+    tags:
+      - 'v*.*.*' # Also trigger the workflow on tags matching the pattern v*.*.*
 
 jobs:
   build:
@@ -22,13 +24,34 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Install Gradle
-        uses: gradle/gradle-build-action@v2
-
       - name: Build
         run: ./gradlew build
 
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/distributions/<your-asset-file>
+          asset_name: <your-asset-file>
+          asset_content_type: application/zip
+
       - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
